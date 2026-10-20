@@ -1,28 +1,101 @@
 package com.example.hiredude
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.safeContentPadding
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import org.jetbrains.compose.resources.painterResource
-
-import hiredude.shared.generated.resources.Res
-import hiredude.shared.generated.resources.compose_multiplatform
+import com.example.hiredude.model.AppScreen
+import com.example.hiredude.model.MainTab
+import com.example.hiredude.model.UserProfile
+import com.example.hiredude.theme.HireDudeTheme
+import com.example.hiredude.ui.*
 
 @Composable
-@Preview
 fun App() {
-    MaterialTheme {
+    var currentScreen by remember { mutableStateOf(AppScreen.SPLASH) }
+    var currentTab by remember { mutableStateOf(MainTab.HOME) }
+    var userProfile by remember { mutableStateOf(UserProfile()) }
 
+    HireDudeTheme {
+        when (currentScreen) {
+            AppScreen.SPLASH -> {
+                SplashContent(
+                    onContinue = {
+                        currentScreen = AppScreen.LOGIN
+                    }
+                )
+            }
+
+            AppScreen.LOGIN -> {
+                LoginContent(
+                    onLoginSuccess = {
+                        currentScreen = AppScreen.MAIN
+                        currentTab = MainTab.HOME
+                    }
+                )
+            }
+
+            AppScreen.MAIN -> {
+                Scaffold(
+                    bottomBar = {
+                        BottomNavigationBar(
+                            currentTab = currentTab,
+                            onTabSelected = { tab ->
+                                currentTab = tab
+                            }
+                        )
+                    }
+                ) { innerPadding ->
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding)
+                    ) {
+                        when (currentTab) {
+                            MainTab.HOME -> {
+                                HomeScreen(
+                                    userProfile = userProfile,
+                                    onUpgradeToPro = {
+                                        userProfile = userProfile.copy(isProMember = true)
+                                    },
+                                    onOpenProfile = {
+                                        currentTab = MainTab.PROFILE
+                                    }
+                                )
+                            }
+
+                            MainTab.APPLIED -> {
+                                AppliedScreen(
+                                    onBrowseRolesClick = {
+                                        currentTab = MainTab.HOME
+                                    }
+                                )
+                            }
+
+                            MainTab.ABOUT -> {
+                                AboutScreen()
+                            }
+
+                            MainTab.PROFILE -> {
+                                ProfileScreen(
+                                    userProfile = userProfile,
+                                    onProfileUpdate = { updated ->
+                                        userProfile = updated
+                                    },
+                                    onUpgradeToPro = {
+                                        userProfile = userProfile.copy(isProMember = true)
+                                    },
+                                    onLogout = {
+                                        currentScreen = AppScreen.LOGIN
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
