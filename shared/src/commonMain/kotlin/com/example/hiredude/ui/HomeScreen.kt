@@ -17,6 +17,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.hiredude.data.MockData
@@ -24,6 +26,15 @@ import com.example.hiredude.model.Job
 import com.example.hiredude.model.UserProfile
 import com.example.hiredude.theme.*
 
+@Composable
+@Preview
+fun preview_function() {
+    HomeScreen(
+        userProfile = UserProfile(),
+        onUpgradeToPro = {},
+        onOpenProfile = {}
+    )
+}
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
@@ -58,6 +69,7 @@ fun HomeScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .statusBarsPadding()
                         .padding(horizontal = 16.dp, vertical = 12.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
@@ -523,7 +535,17 @@ fun HomeScreen(
         }
     }
 }
+// Add these imports at the top of the file if missing:
+// import androidx.compose.foundation.layout.ExperimentalLayoutApi
+// import androidx.compose.foundation.layout.FlowRow
+// import androidx.compose.foundation.layout.PaddingValues
+// import androidx.compose.foundation.layout.Spacer
+// import androidx.compose.foundation.layout.height
+// import androidx.compose.foundation.layout.width
+// import androidx.compose.foundation.layout.wrapContentWidth
+// import androidx.compose.ui.text.style.TextOverflow
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun JobCardItem(
     job: Job,
@@ -539,7 +561,9 @@ fun JobCardItem(
         shadowElevation = 1.dp
     ) {
         Column(
-            modifier = Modifier.padding(14.dp),
+            modifier = Modifier.padding(14.dp)
+                .fillMaxWidth()
+                .wrapContentHeight(),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             // Top Row
@@ -567,26 +591,23 @@ fun JobCardItem(
                         )
                     }
 
-                    Column {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(6.dp)
-                        ) {
-                            Text(
-                                text = "${job.company} · ${job.sector}",
-                                fontSize = 12.sp,
-                                color = OnSurfaceVariant,
-                                fontWeight = FontWeight.Medium
-                            )
-                            Text("·", fontSize = 12.sp, color = Outline)
-                            Text(job.timeAgo, fontSize = 12.sp, color = OnSurfaceVariant)
-                        }
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "${job.company} · ${job.sector} · ${job.timeAgo}",
+                            fontSize = 12.sp,
+                            color = OnSurfaceVariant,
+                            fontWeight = FontWeight.Medium,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
 
                         Text(
                             text = job.title,
                             fontSize = 15.sp,
                             fontWeight = FontWeight.Bold,
-                            color = OnSurface
+                            color = OnSurface,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
                 }
@@ -603,19 +624,27 @@ fun JobCardItem(
             }
 
             // Meta Badges
-            Row(
+            FlowRow(
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
-                verticalAlignment = Alignment.CenterVertically
+                verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 val badges = listOf(job.location, job.workType, job.duration, job.batchTag)
-                badges.forEach { badge ->
+                badges.filter { it.isNotBlank() }.forEach { badge ->
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(4.dp))
                             .background(SurfaceContainer)
                             .padding(horizontal = 8.dp, vertical = 3.dp)
                     ) {
-                        Text(badge, fontSize = 11.sp, color = OnSurface)
+                        Text(
+                            text = badge,
+                            fontSize = 11.sp,
+                            color = OnSurface,
+                            maxLines = 1,
+                            softWrap = false,
+                            overflow = TextOverflow.Ellipsis
+                        )
                     }
                 }
             }
@@ -681,15 +710,20 @@ fun JobCardItem(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Column {
+                    // Flexible side: takes the leftover width and truncates if needed
+                    Column(modifier = Modifier.weight(1f)) {
                         Text("Compensation", fontSize = 11.sp, color = OnSurfaceVariant)
                         Text(
                             text = job.stipendText,
                             fontSize = 15.sp,
                             fontWeight = FontWeight.Bold,
-                            color = OnSurface
+                            color = OnSurface,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
+
+                    Spacer(modifier = Modifier.width(12.dp))
 
                     if (job.isApplied) {
                         Box(
@@ -702,17 +736,29 @@ fun JobCardItem(
                                 text = job.appliedTimeAgo ?: "Applied",
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = SuccessText
+                                color = SuccessText,
+                                maxLines = 1,
+                                softWrap = false
                             )
                         }
                     } else {
+                        // Fixed side: keeps its natural width so the label never wraps
                         Button(
                             onClick = { onApplyClick() },
+                            modifier = Modifier
+                                .wrapContentWidth()
+                                .height(40.dp),
                             shape = RoundedCornerShape(8.dp),
-                            contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp),
+                            contentPadding = PaddingValues(horizontal = 14.dp, vertical = 0.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = PrimaryContainer, contentColor = OnPrimary)
                         ) {
-                            Text("Direct Apply ⚡", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                            Text(
+                                text = "Direct Apply ⚡",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                maxLines = 1,
+                                softWrap = false
+                            )
                         }
                     }
                 }

@@ -1,6 +1,7 @@
 package com.example.hiredude
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -39,6 +40,7 @@ fun App() {
 
             AppScreen.MAIN -> {
                 Scaffold(
+                    contentWindowInsets = WindowInsets(0, 0, 0, 0),
                     bottomBar = {
                         BottomNavigationBar(
                             currentTab = currentTab,

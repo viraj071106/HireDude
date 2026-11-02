@@ -1,7 +1,6 @@
 package com.example.hiredude.ui
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -31,6 +30,7 @@ fun AboutScreen() {
         modifier = Modifier
             .fillMaxSize()
             .background(Surface)
+            .statusBarsPadding()
             .verticalScroll(rememberScrollState())
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp)
@@ -59,7 +59,7 @@ fun AboutScreen() {
             }
 
             Text(
-                text = "Your gateway to opportunities",
+                text = "Your gateway to student opportunities",
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 color = OnSurface,
@@ -67,7 +67,7 @@ fun AboutScreen() {
             )
 
             Text(
-                text = "HireDude bridges ambitious Indian engineering students directly with verified fast-growing tech teams, eliminating ghosting and referral black holes through IIT & NIT alumni networks.",
+                text = "HireDude connects Indian engineering students with verified startup roles, providing clear stipend details and direct recruiter routing.",
                 fontSize = 14.sp,
                 color = OnSurfaceVariant,
                 lineHeight = 22.sp
@@ -114,9 +114,9 @@ fun AboutScreen() {
                 }
 
                 val studentBenefits = listOf(
-                    "Verified campus domain accreditation (IIT, NIT, IIIT, BITS)",
-                    "Real stipend transparency and verified recruiter routing",
-                    "Guaranteed application review timeline under 72 hours"
+                    "Instant verification with college email (.edu / .ac.in)",
+                    "Clear stipend details and transparent application status",
+                    "Direct routing to verified hiring teams"
                 )
 
                 studentBenefits.forEach { benefit ->
@@ -175,9 +175,9 @@ fun AboutScreen() {
                 Text("Curated talent from ₹499 per post", fontSize = 12.sp, color = Color.White.copy(alpha = 0.8f))
 
                 val recruiterBenefits = listOf(
-                    "Target batch-specific talent (2025/2026 B.Tech/M.Tech)",
-                    "Pre-screened coding & design portfolios with verified CGPA",
-                    "Direct WhatsApp candidate outreach with 84% response rate"
+                    "Target batch-specific engineering talent (2025/2026)",
+                    "Review verified projects and CGPA credentials",
+                    "Direct candidate outreach with high response rates"
                 )
 
                 recruiterBenefits.forEach { benefit ->

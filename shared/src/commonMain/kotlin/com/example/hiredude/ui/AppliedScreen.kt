@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.hiredude.data.MockData
@@ -39,6 +40,7 @@ fun AppliedScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(Surface)
+            .statusBarsPadding()
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
@@ -229,14 +231,34 @@ fun ApplicationCardItem(item: ApplicationItem) {
                     }
 
                     Column {
-                        Text(item.title, fontSize = 15.sp, fontWeight = FontWeight.Bold, color = OnSurface)
+                        Text(
+                            text = item.title,
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = OnSurface,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
-                            Text(item.company, fontSize = 13.sp, color = OnSurfaceVariant, fontWeight = FontWeight.Medium)
+                            Text(
+                                text = item.company,
+                                fontSize = 13.sp,
+                                color = OnSurfaceVariant,
+                                fontWeight = FontWeight.Medium,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
                             Text("•", fontSize = 12.sp, color = Outline)
-                            Text(item.location, fontSize = 12.sp, color = Outline)
+                            Text(
+                                text = item.location,
+                                fontSize = 12.sp,
+                                color = Outline,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
                         }
                     }
                 }

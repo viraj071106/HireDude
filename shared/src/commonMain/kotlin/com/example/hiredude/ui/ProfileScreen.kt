@@ -14,6 +14,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.hiredude.model.UserProfile
@@ -40,7 +41,8 @@ fun ProfileScreen(
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(Surface),
+            .background(Surface)
+            .statusBarsPadding(),
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
@@ -62,6 +64,7 @@ fun ProfileScreen(
                         verticalAlignment = Alignment.Top
                     ) {
                         Row(
+                            modifier = Modifier.weight(1f),
                             horizontalArrangement = Arrangement.spacedBy(12.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -81,19 +84,29 @@ fun ProfileScreen(
                             }
 
                             Column {
-                                Text(userProfile.name, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = OnSurface)
-                                Text("${userProfile.collegeShort} · ${userProfile.degreeBatch}", fontSize = 13.sp, color = OnSurfaceVariant)
+                                Text(
+                                    text = userProfile.name,
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = OnSurface,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                                Text(
+                                    text = "${userProfile.collegeShort} · ${userProfile.degreeBatch}",
+                                    fontSize = 13.sp,
+                                    color = OnSurfaceVariant,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
                             }
                         }
 
-                        // Pro Pill Toggle Button
+                        // Clean Member Badge
                         Box(
                             modifier = Modifier
                                 .clip(CircleShape)
                                 .background(if (userProfile.isProMember) PrimaryContainer else SurfaceContainer)
-                                .clickable {
-                                    onProfileUpdate(userProfile.copy(isProMember = !userProfile.isProMember))
-                                }
                                 .padding(horizontal = 10.dp, vertical = 6.dp)
                         ) {
                             Row(
@@ -107,7 +120,7 @@ fun ProfileScreen(
                                         .background(if (userProfile.isProMember) Color.White else Primary)
                                 )
                                 Text(
-                                    text = if (userProfile.isProMember) "HireDude Pro" else "Free Member",
+                                    text = if (userProfile.isProMember) "Pro Member" else "Free Plan",
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = if (userProfile.isProMember) Color.White else OnSurface
@@ -116,7 +129,7 @@ fun ProfileScreen(
                         }
                     }
 
-                    // NIT Verified Talent Network Banner
+                    // Verified College Talent Network Banner
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -139,8 +152,8 @@ fun ProfileScreen(
                             ) {
                                 IconVerified(tint = Color.White, modifier = Modifier.size(18.dp))
                                 Column {
-                                    Text("VERIFIED NIT TALENT NETWORK", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color.White.copy(alpha = 0.9f))
-                                    Text("Tiruchirappalli · Tier 1 Engg", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
+                                    Text("VERIFIED CAMPUS NETWORK", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color.White.copy(alpha = 0.9f))
+                                    Text("Tiruchirappalli · Tier 1 Engineering", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
                                 }
                             }
 
@@ -199,9 +212,18 @@ fun ProfileScreen(
                 shadowElevation = 1.dp
             ) {
                 Column {
-                    ProfileSettingRow("👤", "Personal details", "${userProfile.email} · ${userProfile.phone}")
+                    ProfileSettingRow(
+                        icon = { IconPerson(tint = OnSurfaceVariant, modifier = Modifier.size(20.dp)) },
+                        title = "Personal details",
+                        subtitle = "${userProfile.email} · ${userProfile.phone}"
+                    )
                     HorizontalDivider(color = SurfaceVariant)
-                    ProfileSettingRow("🎓", "Education", "${userProfile.college} (CGPA: 8.84)")
+
+                    ProfileSettingRow(
+                        icon = { IconEducation(tint = OnSurfaceVariant, modifier = Modifier.size(20.dp)) },
+                        title = "Education",
+                        subtitle = "${userProfile.college} (CGPA: 8.84)"
+                    )
                     HorizontalDivider(color = SurfaceVariant)
 
                     // Skills
@@ -218,7 +240,7 @@ fun ProfileScreen(
                                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text("💻", fontSize = 18.sp)
+                                IconCode(tint = OnSurfaceVariant, modifier = Modifier.size(20.dp))
                                 Text("Skills", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = OnSurface)
                             }
                             Text("Manage", fontSize = 12.sp, color = Primary, fontWeight = FontWeight.Medium)
@@ -226,7 +248,7 @@ fun ProfileScreen(
 
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(6.dp),
-                            modifier = Modifier.padding(start = 30.dp)
+                            modifier = Modifier.padding(start = 32.dp)
                         ) {
                             userProfile.skills.forEach { skill ->
                                 Box(
@@ -242,11 +264,26 @@ fun ProfileScreen(
                     }
 
                     HorizontalDivider(color = SurfaceVariant)
-                    ProfileSettingRow("🏢", "Experience", userProfile.experienceSummary)
+
+                    ProfileSettingRow(
+                        icon = { IconWork(tint = OnSurfaceVariant, modifier = Modifier.size(20.dp)) },
+                        title = "Experience",
+                        subtitle = userProfile.experienceSummary
+                    )
                     HorizontalDivider(color = SurfaceVariant)
-                    ProfileSettingRow("📄", "Resume", "${userProfile.resumeName} (${userProfile.resumeSize})")
+
+                    ProfileSettingRow(
+                        icon = { IconDocument(tint = OnSurfaceVariant, modifier = Modifier.size(20.dp)) },
+                        title = "Resume",
+                        subtitle = "${userProfile.resumeName} (${userProfile.resumeSize})"
+                    )
                     HorizontalDivider(color = SurfaceVariant)
-                    ProfileSettingRow("🔗", "Links", "GitHub, LinkedIn, Behance")
+
+                    ProfileSettingRow(
+                        icon = { IconLink(tint = OnSurfaceVariant, modifier = Modifier.size(20.dp)) },
+                        title = "Links",
+                        subtitle = "GitHub, LinkedIn, Behance"
+                    )
                     HorizontalDivider(color = SurfaceVariant)
 
                     // Subscription Row
@@ -261,7 +298,7 @@ fun ProfileScreen(
                             horizontalArrangement = Arrangement.spacedBy(12.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text("⭐", fontSize = 18.sp)
+                            IconStar(tint = PrimaryContainer, modifier = Modifier.size(20.dp))
                             Column {
                                 Text("Subscription", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = OnSurface)
                                 Text(if (userProfile.isProMember) "HireDude Pro Member" else "Free Tier", fontSize = 13.sp, color = OnSurfaceVariant)
@@ -278,7 +315,12 @@ fun ProfileScreen(
                     }
 
                     HorizontalDivider(color = SurfaceVariant)
-                    ProfileSettingRow("⚙️", "Settings & Preferences", "Notifications, visibility & security")
+
+                    ProfileSettingRow(
+                        icon = { IconSettings(tint = OnSurfaceVariant, modifier = Modifier.size(20.dp)) },
+                        title = "Settings & Preferences",
+                        subtitle = "Notifications, visibility & security"
+                    )
                     HorizontalDivider(color = SurfaceVariant)
 
                     // Logout Row
@@ -294,7 +336,7 @@ fun ProfileScreen(
                             horizontalArrangement = Arrangement.spacedBy(12.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text("🚪", fontSize = 18.sp)
+                            IconLogout(tint = Error, modifier = Modifier.size(20.dp))
                             Text("Log out", fontSize = 15.sp, fontWeight = FontWeight.Bold, color = Error)
                         }
                         IconChevronRight(tint = Error, modifier = Modifier.size(16.dp))
@@ -420,7 +462,7 @@ fun ProfileScreen(
 
 @Composable
 fun ProfileSettingRow(
-    icon: String,
+    icon: @Composable () -> Unit,
     title: String,
     subtitle: String
 ) {
@@ -436,7 +478,7 @@ fun ProfileSettingRow(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.weight(1f)
         ) {
-            Text(icon, fontSize = 18.sp)
+            icon()
             Column {
                 Text(title, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = OnSurface)
                 Text(subtitle, fontSize = 13.sp, color = OnSurfaceVariant)
