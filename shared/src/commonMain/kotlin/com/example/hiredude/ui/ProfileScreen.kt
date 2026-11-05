@@ -15,12 +15,31 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.hiredude.model.UserProfile
 import com.example.hiredude.theme.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+
+@Preview
+@Composable
+fun previewFun() {
+    ProfileScreen(
+        userProfile = UserProfile(
+            name = "John Doe",
+            email = "john.doe@example.com",
+            phone = "123-456-7890",
+            portfolioUrl = "https://example.com/portfolio",
+            collegeShort = "XYZ University",
+            degreeBatch = "2023"
+        ),
+        onProfileUpdate = {},
+        onUpgradeToPro = {},
+        onLogout = {}
+    )
+}
 
 @Composable
 fun ProfileScreen(
@@ -130,43 +149,39 @@ fun ProfileScreen(
                     }
 
                     // Verified College Talent Network Banner
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(10.dp))
-                            .background(
-                                brush = Brush.linearGradient(
-                                    colors = listOf(Primary, PrimaryContainer)
-                                )
-                            )
-                            .padding(12.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                IconVerified(tint = Color.White, modifier = Modifier.size(18.dp))
-                                Column {
-                                    Text("VERIFIED CAMPUS NETWORK", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color.White.copy(alpha = 0.9f))
-                                    Text("Tiruchirappalli · Tier 1 Engineering", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
-                                }
-                            }
+                    /*Box(
+                         modifier = Modifier
+                             .fillMaxWidth()
+                             .clip(RoundedCornerShape(10.dp))
+                             .background(Primary)
+                             .padding(12.dp)
+                     ) {
+                         Row(
+                             modifier = Modifier.fillMaxWidth(),
+                             horizontalArrangement = Arrangement.SpaceBetween,
+                             verticalAlignment = Alignment.CenterVertically
+                         ) {
+                             Row(
+                                 verticalAlignment = Alignment.CenterVertically,
+                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
+                             ) {
+                                 IconVerified(tint = Color.White, modifier = Modifier.size(18.dp))
+                                 Column {
+                                     Text("VERIFIED CAMPUS NETWORK", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color.White.copy(alpha = 0.9f))
+                                     Text("Tiruchirappalli · Tier 1 Engineering", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
+                                 }
+                             }
 
-                            Box(
-                                modifier = Modifier
-                                    .clip(CircleShape)
-                                    .background(Color.White.copy(alpha = 0.2f))
-                                    .padding(horizontal = 8.dp, vertical = 2.dp)
-                            ) {
-                                Text("Active", fontSize = 10.sp, color = Color.White, fontWeight = FontWeight.Bold)
-                            }
-                        }
-                    }
+                             Box(
+                                 modifier = Modifier
+                                     .clip(CircleShape)
+                                     .background(Color.White.copy(alpha = 0.2f))
+                                     .padding(horizontal = 8.dp, vertical = 2.dp)
+                             ) {
+                                 Text("Active", fontSize = 10.sp, color = Color.White, fontWeight = FontWeight.Bold)
+                             }
+                         }
+                    }*/
 
                     // Profile Completion Bar
                     Column(

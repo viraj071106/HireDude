@@ -1,6 +1,5 @@
 package com.example.hiredude.ui
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -51,7 +50,8 @@ fun SplashContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.TopCenter)
-                .padding(top = 16.dp),
+                .statusBarsPadding()
+                .padding(top = 8.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -146,35 +146,10 @@ fun SplashContent(
                 )
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // IIT Delhi Alumni Badge
-            Row(
-                modifier = Modifier
-                    .clip(CircleShape)
-                    .background(Color.White.copy(alpha = 0.15f))
-                    .padding(horizontal = 14.dp, vertical = 6.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(6.dp)
-                        .clip(CircleShape)
-                        .background(SecondaryContainer)
-                )
-                Text(
-                    text = "IIT Delhi Alumni Initiative",
-                    color = Color(0xFFD7B0DB),
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Medium
-                )
-            }
-
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Engineering, product, & data careers curated directly by alumni networks.",
+                text = "Engineering, product, and data careers from alumni networks.",
                 color = Color.White.copy(alpha = 0.85f),
                 fontSize = 14.sp,
                 textAlign = TextAlign.Center,
@@ -201,7 +176,7 @@ fun SplashContent(
                         strokeWidth = 2.dp
                     )
                     Text(
-                        text = "Syncing Verified Roles...",
+                        text = "Syncing Roles...",
                         color = PrimaryContainer,
                         fontSize = 13.sp,
                         fontWeight = FontWeight.SemiBold
@@ -212,7 +187,7 @@ fun SplashContent(
                         modifier = Modifier.size(18.dp)
                     )
                     Text(
-                        text = "Direct Network Connected",
+                        text = "Network Connected",
                         color = PrimaryContainer,
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Bold
@@ -238,7 +213,7 @@ fun SplashContent(
             )
 
             Text(
-                text = "An IIT Delhi Alumni Initiative · Built for Indian Students & Engineers",
+                text = "Built for Indian Students & Engineers",
                 color = Color(0xFFD7B0DB),
                 fontSize = 12.sp,
                 textAlign = TextAlign.Center

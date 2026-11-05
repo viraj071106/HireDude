@@ -159,7 +159,6 @@ fun IconWarning(
             color = Color.White,
             radius = size.width * 0.04f,
             center = Offset(size.width * 0.5f, size.height * 0.72f)
-
         )
     }
 }
@@ -417,5 +416,102 @@ fun IconBell(
             size = Size(size.width * 0.2f, size.height * 0.14f),
             style = Stroke(width = size.width * 0.1f)
         )
+    }
+}
+
+@Composable
+fun IconHome(
+    tint: Color,
+    modifier: Modifier = Modifier.size(18.dp)
+) {
+    Canvas(modifier = modifier) {
+        val roof = Path().apply {
+            moveTo(size.width * 0.15f, size.height * 0.5f)
+            lineTo(size.width * 0.5f, size.height * 0.18f)
+            lineTo(size.width * 0.85f, size.height * 0.5f)
+        }
+        drawPath(path = roof, color = tint, style = Stroke(width = size.width * 0.1f))
+        drawRoundRect(
+            color = tint,
+            topLeft = Offset(size.width * 0.25f, size.height * 0.48f),
+            size = Size(size.width * 0.5f, size.height * 0.38f),
+            cornerRadius = CornerRadius(size.width * 0.04f),
+            style = Stroke(width = size.width * 0.1f)
+        )
+    }
+}
+
+@Composable
+fun IconBriefcase(
+    tint: Color,
+    modifier: Modifier = Modifier.size(18.dp)
+) {
+    IconWork(tint = tint, modifier = modifier)
+}
+
+@Composable
+fun IconInfo(
+    tint: Color,
+    modifier: Modifier = Modifier.size(18.dp)
+) {
+    Canvas(modifier = modifier) {
+        drawCircle(
+            color = tint,
+            radius = size.width * 0.42f,
+            center = Offset(size.width * 0.5f, size.height * 0.5f),
+            style = Stroke(width = size.width * 0.1f)
+        )
+        drawCircle(
+            color = tint,
+            radius = size.width * 0.05f,
+            center = Offset(size.width * 0.5f, size.height * 0.32f)
+        )
+        drawLine(
+            color = tint,
+            start = Offset(size.width * 0.5f, size.height * 0.45f),
+            end = Offset(size.width * 0.5f, size.height * 0.72f),
+            strokeWidth = size.width * 0.1f
+        )
+    }
+}
+
+@Composable
+fun IconMail(
+    tint: Color,
+    modifier: Modifier = Modifier.size(18.dp)
+) {
+    Canvas(modifier = modifier) {
+        drawRoundRect(
+            color = tint,
+            topLeft = Offset(size.width * 0.12f, size.height * 0.22f),
+            size = Size(size.width * 0.76f, size.height * 0.56f),
+            cornerRadius = CornerRadius(size.width * 0.06f),
+            style = Stroke(width = size.width * 0.1f)
+        )
+        val envelope = Path().apply {
+            moveTo(size.width * 0.14f, size.height * 0.25f)
+            lineTo(size.width * 0.5f, size.height * 0.52f)
+            lineTo(size.width * 0.86f, size.height * 0.25f)
+        }
+        drawPath(path = envelope, color = tint, style = Stroke(width = size.width * 0.1f))
+    }
+}
+
+@Composable
+fun IconBolt(
+    tint: Color,
+    modifier: Modifier = Modifier.size(18.dp)
+) {
+    Canvas(modifier = modifier) {
+        val bolt = Path().apply {
+            moveTo(size.width * 0.55f, size.height * 0.1f)
+            lineTo(size.width * 0.2f, size.height * 0.55f)
+            lineTo(size.width * 0.48f, size.height * 0.55f)
+            lineTo(size.width * 0.42f, size.height * 0.9f)
+            lineTo(size.width * 0.8f, size.height * 0.42f)
+            lineTo(size.width * 0.52f, size.height * 0.42f)
+            close()
+        }
+        drawPath(path = bolt, color = tint)
     }
 }

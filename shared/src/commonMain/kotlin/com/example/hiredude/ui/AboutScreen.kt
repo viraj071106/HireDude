@@ -192,47 +192,6 @@ fun AboutScreen() {
             }
         }
 
-        // Key Ecosystem Metrics Grid
-        Surface(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(14.dp),
-            color = SurfaceContainerLowest,
-            shadowElevation = 1.dp
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                val metrics = listOf(
-                    "18,400+" to "Verified students",
-                    "420+" to "Hiring startups",
-                    "4.2 days" to "Avg. hiring time"
-                )
-
-                metrics.forEachIndexed { index, (value, label) ->
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(2.dp)
-                    ) {
-                        Text(value, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = OnSurface)
-                        Text(label, fontSize = 11.sp, color = OnSurfaceVariant, textAlign = TextAlign.Center)
-                    }
-
-                    if (index < metrics.size - 1) {
-                        HorizontalDivider(
-                            modifier = Modifier
-                                .height(32.dp)
-                                .width(1.dp),
-                            color = SurfaceContainer
-                        )
-                    }
-                }
-            }
-        }
-
         // Contact Button & Toast
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
             OutlinedButton(

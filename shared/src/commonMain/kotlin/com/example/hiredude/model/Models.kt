@@ -39,7 +39,7 @@ data class Job(
     val duration: String,
     val timeAgo: String,
     val stipendText: String,
-    val isStipendLocked: Boolean,
+    val isStipendLocked: Boolean = false,
     val applicantsCount: String,
     val recruiterInfo: String? = null,
     val isApplied: Boolean = false,
@@ -48,7 +48,22 @@ data class Job(
     val closesInDays: Int? = null,
     val companyBgColor: Color,
     val companyInitial: String,
-    val batchTag: String = "Batch '25 / '26"
+    val batchTag: String = "Batch '25 / '26",
+    val experienceRequired: String = "0-1 Years (Freshers / Students)",
+    val techStack: List<String> = listOf("Kotlin", "React", "TypeScript", "REST APIs", "Git"),
+    val description: String = "Join our core engineering team to build scalable consumer applications. You will collaborate directly with senior leads to design and ship production features.",
+    val responsibilities: List<String> = listOf(
+        "Develop clean, responsive UI components and features",
+        "Integrate RESTful APIs and handle asynchronous data flows",
+        "Write unit tests and maintain high code quality standards",
+        "Participate in code reviews and architecture discussions"
+    ),
+    val requirements: List<String> = listOf(
+        "Strong problem-solving skills in CS fundamentals and data structures",
+        "Hands-on experience with modern frontend or mobile frameworks",
+        "Familiarity with Git, state management, and HTTP networking",
+        "Pursuing B.Tech / M.Tech / MCA (Batch of 2025 or 2026)"
+    )
 )
 
 data class ApplicationItem(

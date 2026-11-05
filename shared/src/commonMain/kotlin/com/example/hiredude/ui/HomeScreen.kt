@@ -14,7 +14,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -35,6 +34,7 @@ fun preview_function() {
         onOpenProfile = {}
     )
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
@@ -46,571 +46,555 @@ fun HomeScreen(
     var selectedFilter by remember { mutableStateOf("All") }
     var jobsList by remember { mutableStateOf(MockData.getInitialJobs(userProfile.isProMember)) }
     var showProSheet by remember { mutableStateOf(false) }
+    var selectedJob by remember { mutableStateOf<Job?>(null) }
 
     val filterChips = listOf("All", "Internships", "Freelance", "Full-time", "Remote", "Design", "Engineering", "Marketing")
 
-    // Update list when user profile pro state changes
     LaunchedEffect(userProfile.isProMember) {
         jobsList = MockData.getInitialJobs(userProfile.isProMember)
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Surface)
-    ) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            // Header Bar
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                color = SurfaceContainerLowest,
-                shadowElevation = 1.dp
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .statusBarsPadding()
-                        .padding(horizontal = 16.dp, vertical = 12.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+    if (selectedJob != null) {
+        // Detailed Job Screen
+        JobDetailScreen(
+            job = selectedJob!!,
+            onBack = { selectedJob = null },
+            onApply = { appliedJob ->
+                jobsList = jobsList.map { item ->
+                    if (item.id == appliedJob.id) appliedJob else item
+                }
+                selectedJob = appliedJob
+            },
+            onBookmarkToggle = { bookmarkedJob ->
+                jobsList = jobsList.map { item ->
+                    if (item.id == bookmarkedJob.id) bookmarkedJob else item
+                }
+            }
+        )
+    } else {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Surface)
+        ) {
+            Column(modifier = Modifier.fillMaxSize()) {
+                // Header Bar
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    color = SurfaceContainerLowest,
+                    shadowElevation = 1.dp
                 ) {
                     Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(2.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .statusBarsPadding()
+                            .padding(horizontal = 16.dp, vertical = 12.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(
-                            text = "Hire",
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = PrimaryContainer
-                        )
-                        Text(
-                            text = "Dude",
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = OnSurface
-                        )
-                    }
-
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(36.dp)
-                                .clip(CircleShape)
-                                .background(SurfaceContainerLow),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text("🔔", fontSize = 14.sp)
-                        }
-
-                        Box(
-                            modifier = Modifier
-                                .size(36.dp)
-                                .clip(CircleShape)
-                                .background(PrimaryContainer)
-                                .clickable { onOpenProfile() },
-                            contentAlignment = Alignment.Center
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(2.dp)
                         ) {
                             Text(
-                                text = userProfile.name.take(1),
-                                color = Color.White,
+                                text = "Hire",
+                                fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold,
-                                fontSize = 14.sp
+                                color = PrimaryContainer
+                            )
+                            Text(
+                                text = "Dude",
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = OnSurface
                             )
                         }
+
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .clip(CircleShape)
+                                    .background(SurfaceContainerLow),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                IconBell(tint = OnSurfaceVariant, modifier = Modifier.size(18.dp))
+                            }
+
+                            Box(
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .clip(CircleShape)
+                                    .background(PrimaryContainer)
+                                    .clickable { onOpenProfile() },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = userProfile.name.take(1),
+                                    color = Color.White,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 14.sp
+                                )
+                            }
+                        }
+                    }
+                }
+
+                // Scrollable Content
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    // Greeting & Search Header
+                    item {
+                        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                    ) {
+                                        Text(
+                                            text = "Hi ${userProfile.name.split(" ").firstOrNull() ?: "Ananya"}",
+                                            fontSize = 20.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = OnSurface,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                        if (userProfile.isProMember) {
+                                            IconVerified(tint = Primary, modifier = Modifier.size(18.dp))
+                                        }
+                                    }
+                                    Text(
+                                        text = "12 new roles match your profile",
+                                        fontSize = 13.sp,
+                                        color = OnSurfaceVariant,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                }
+
+                                // Plan Badge
+                                Box(
+                                    modifier = Modifier
+                                        .clip(CircleShape)
+                                        .background(if (userProfile.isProMember) PrimaryContainer else SurfaceContainerHigh)
+                                        .padding(horizontal = 10.dp, vertical = 4.dp)
+                                ) {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                    ) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(6.dp)
+                                                .clip(CircleShape)
+                                                .background(if (userProfile.isProMember) Color.White else Primary)
+                                        )
+                                        Text(
+                                            text = if (userProfile.isProMember) "HireDude Pro" else "Free Plan",
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.SemiBold,
+                                            color = if (userProfile.isProMember) Color.White else OnSurfaceVariant
+                                        )
+                                    }
+                                }
+                            }
+
+                            // Search Bar
+                            OutlinedTextField(
+                                value = searchQuery,
+                                onValueChange = { searchQuery = it },
+                                modifier = Modifier.fillMaxWidth(),
+                                placeholder = {
+                                    Text("Search by role, company, or tech stack...", fontSize = 13.sp, color = Outline)
+                                },
+                                leadingIcon = {
+                                    IconSearch(tint = Outline, modifier = Modifier.size(16.dp))
+                                },
+                                trailingIcon = {
+                                    if (searchQuery.isNotEmpty()) {
+                                        Text(
+                                            text = "✕",
+                                            fontSize = 14.sp,
+                                            color = Outline,
+                                            modifier = Modifier.clickable { searchQuery = "" }
+                                        )
+                                    }
+                                },
+                                singleLine = true,
+                                shape = RoundedCornerShape(10.dp),
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedContainerColor = SurfaceContainerLowest,
+                                    unfocusedContainerColor = SurfaceContainerLowest,
+                                    focusedBorderColor = Primary,
+                                    unfocusedBorderColor = SurfaceContainer
+                                )
+                            )
+                        }
+                    }
+
+                    // Filter Chips Row
+                    item {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .horizontalScroll(rememberScrollState()),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            filterChips.forEach { filter ->
+                                val isSelected = filter == selectedFilter
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .background(if (isSelected) Primary else SurfaceContainerLowest)
+                                        .clickable { selectedFilter = filter }
+                                        .padding(horizontal = 14.dp, vertical = 8.dp)
+                                ) {
+                                    Text(
+                                        text = filter,
+                                        fontSize = 12.sp,
+                                        fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
+                                        color = if (isSelected) OnPrimary else OnSurface
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    // Upsell Banner (Free User) / Pro Active Indicator (Pro User)
+                    item {
+                        if (!userProfile.isProMember) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(16.dp))
+                                    .background(Primary)
+                                    .padding(16.dp)
+                            ) {
+                                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                        ) {
+                                            IconVerified(tint = SecondaryContainer, modifier = Modifier.size(18.dp))
+                                            Text(
+                                                text = "HIREDUDE PRO",
+                                                fontSize = 11.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                color = SecondaryContainer,
+                                                letterSpacing = 0.8.sp
+                                            )
+                                        }
+
+                                        Box(
+                                            modifier = Modifier
+                                                .clip(RoundedCornerShape(4.dp))
+                                                .background(Color.White.copy(alpha = 0.15f))
+                                                .padding(horizontal = 8.dp, vertical = 2.dp)
+                                        ) {
+                                            Text(
+                                                text = "Student Plan",
+                                                fontSize = 10.sp,
+                                                color = Color.White
+                                            )
+                                        }
+                                    }
+
+                                    Text(
+                                        text = "Apply directly to hiring managers without ATS filtering",
+                                        fontSize = 15.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color.White
+                                    )
+
+                                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                        val benefits = listOf(
+                                            "View exact stipends & CTC details",
+                                            "Direct recruiter email & message routing",
+                                            "Verified student profile highlights"
+                                        )
+                                        benefits.forEach { benefit ->
+                                            Row(
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                            ) {
+                                                IconCheck(tint = TertiaryFixed, modifier = Modifier.size(14.dp))
+                                                Text(
+                                                    text = benefit,
+                                                    fontSize = 13.sp,
+                                                    color = Color.White.copy(alpha = 0.9f)
+                                                )
+                                            }
+                                        }
+                                    }
+
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(top = 4.dp),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Column {
+                                            Text("Early career plan", fontSize = 11.sp, color = Color.White.copy(alpha = 0.7f))
+                                            Row(verticalAlignment = Alignment.Bottom) {
+                                                Text("₹299", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                                                Text(" / month", fontSize = 12.sp, color = Color.White.copy(alpha = 0.8f))
+                                            }
+                                        }
+
+                                        Button(
+                                            onClick = { showProSheet = true },
+                                            shape = RoundedCornerShape(8.dp),
+                                            colors = ButtonDefaults.buttonColors(
+                                                containerColor = SurfaceContainerLowest,
+                                                contentColor = Primary
+                                            )
+                                        ) {
+                                            Text("Upgrade", fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                                        }
+                                    }
+                                }
+                            }
+                        } else {
+                            // Pro Benefit Indicator Bar
+                            Surface(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(12.dp),
+                                color = SurfaceContainerLowest,
+                                shadowElevation = 1.dp
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(14.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(36.dp)
+                                            .clip(RoundedCornerShape(8.dp))
+                                            .background(SurfaceContainer),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        IconVerified(tint = Primary, modifier = Modifier.size(20.dp))
+                                    }
+
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                        ) {
+                                            Text("Pro Active", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Primary)
+                                            Text("·", fontSize = 12.sp, color = OnSurfaceVariant)
+                                            Text("Direct Applications", fontSize = 12.sp, color = OnSurfaceVariant)
+                                        }
+                                        Text(
+                                            text = "Unlimited applications and verified CTC",
+                                            fontSize = 13.sp,
+                                            color = OnSurface,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                    }
+
+                                    IconCheck(tint = Primary, modifier = Modifier.size(18.dp))
+                                }
+                            }
+                        }
+                    }
+
+                    // Feed Section Header
+                    item {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Text(
+                                    text = "Available Roles",
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = OnSurface
+                                )
+                                Box(
+                                    modifier = Modifier
+                                        .clip(CircleShape)
+                                        .background(SurfaceContainerHigh)
+                                        .padding(horizontal = 8.dp, vertical = 2.dp)
+                                ) {
+                                    Text("12 live", fontSize = 11.sp, color = OnSurfaceVariant, fontWeight = FontWeight.Medium)
+                                }
+                            }
+                        }
+                    }
+
+                    // Job Cards Stream
+                    val filteredJobs = jobsList.filter { job ->
+                        if (searchQuery.isEmpty()) true
+                        else job.title.contains(searchQuery, ignoreCase = true) || job.company.contains(searchQuery, ignoreCase = true)
+                    }
+
+                    items(filteredJobs) { job ->
+                        JobCardItem(
+                            job = job,
+                            onCardClick = { selectedJob = job },
+                            onBookmarkToggle = {
+                                jobsList = jobsList.map { item ->
+                                    if (item.id == job.id) item.copy(isBookmarked = !item.isBookmarked) else item
+                                }
+                            }
+                        )
                     }
                 }
             }
 
-            // Scrollable Content
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                // Greeting & Search Header
-                item {
-                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            // Pro Upgrade BottomSheet Modal
+            if (showProSheet) {
+                ModalBottomSheet(
+                    onDismissRequest = { showProSheet = false },
+                    containerColor = SurfaceContainerLowest,
+                    shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(20.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Column {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(6.dp)
-                                ) {
-                                    Text(
-                                        text = "Hi ${userProfile.name.split(" ").firstOrNull() ?: "Ananya"}",
-                                        fontSize = 20.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = OnSurface
-                                    )
-                                    if (userProfile.isProMember) {
-                                        IconVerified(tint = Primary, modifier = Modifier.size(18.dp))
-                                    }
-                                }
-                                Text(
-                                    text = "12 new roles match your profile",
-                                    fontSize = 13.sp,
-                                    color = OnSurfaceVariant
-                                )
+                                Text("PRO TIER FEATURE", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Primary)
+                                Text("Full job details", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = OnSurface)
                             }
-
-                            // Plan Badge
-                            Box(
-                                modifier = Modifier
-                                    .clip(CircleShape)
-                                    .background(if (userProfile.isProMember) PrimaryContainer else SurfaceContainerHigh)
-                                    .padding(horizontal = 10.dp, vertical = 4.dp)
-                            ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(6.dp)
-                                ) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(6.dp)
-                                            .clip(CircleShape)
-                                            .background(if (userProfile.isProMember) Color.White else Primary)
-                                    )
-                                    Text(
-                                        text = if (userProfile.isProMember) "HireDude Pro" else "Free Plan",
-                                        fontSize = 11.sp,
-                                        fontWeight = FontWeight.SemiBold,
-                                        color = if (userProfile.isProMember) Color.White else OnSurfaceVariant
-                                    )
-                                }
-                            }
-                        }
-
-                        // Search Bar
-                        OutlinedTextField(
-                            value = searchQuery,
-                            onValueChange = { searchQuery = it },
-                            modifier = Modifier.fillMaxWidth(),
-                            placeholder = {
-                                Text("Search by role, company, or tech stack...", fontSize = 13.sp, color = Outline)
-                            },
-                            leadingIcon = {
-                                IconSearch(tint = Outline, modifier = Modifier.size(16.dp))
-                            },
-                            trailingIcon = {
-                                if (searchQuery.isNotEmpty()) {
-                                    Text(
-                                        text = "✕",
-                                        fontSize = 14.sp,
-                                        color = Outline,
-                                        modifier = Modifier.clickable { searchQuery = "" }
-                                    )
-                                }
-                            },
-                            singleLine = true,
-                            shape = RoundedCornerShape(10.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedContainerColor = SurfaceContainerLowest,
-                                unfocusedContainerColor = SurfaceContainerLowest,
-                                focusedBorderColor = Primary,
-                                unfocusedBorderColor = SurfaceContainer
+                            Text(
+                                text = "✕",
+                                fontSize = 18.sp,
+                                color = Outline,
+                                modifier = Modifier.clickable { showProSheet = false }
                             )
-                        )
-                    }
-                }
-
-                // Filter Chips Row
-                item {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .horizontalScroll(rememberScrollState()),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        filterChips.forEach { filter ->
-                            val isSelected = filter == selectedFilter
-                            Box(
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(8.dp))
-                                    .background(if (isSelected) Primary else SurfaceContainerLowest)
-                                    .clickable { selectedFilter = filter }
-                                    .padding(horizontal = 14.dp, vertical = 8.dp)
-                            ) {
-                                Text(
-                                    text = filter,
-                                    fontSize = 12.sp,
-                                    fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
-                                    color = if (isSelected) OnPrimary else OnSurface
-                                )
-                            }
                         }
-                    }
-                }
 
-                // Upsell Card (Free User) / Pro Benefit Indicator (Pro User)
-                item {
-                    if (!userProfile.isProMember) {
-                        Box(
+                        Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clip(RoundedCornerShape(16.dp))
-                                .background(
-                                    brush = Brush.linearGradient(
-                                        colors = listOf(BrandPurpleDark, BrandPurpleLight)
-                                    )
-                                )
-                                .padding(16.dp)
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(SurfaceContainerLow)
+                                .padding(14.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                                    ) {
-                                        IconVerified(tint = SecondaryContainer, modifier = Modifier.size(18.dp))
-                                        Text(
-                                            text = "HIREDUDE PRO",
-                                            fontSize = 11.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            color = SecondaryContainer,
-                                            letterSpacing = 0.8.sp
-                                        )
-                                    }
-
-                                    Box(
-                                        modifier = Modifier
-                                            .clip(RoundedCornerShape(4.dp))
-                                            .background(Color.White.copy(alpha = 0.15f))
-                                            .padding(horizontal = 8.dp, vertical = 2.dp)
-                                    ) {
-                                        Text(
-                                            text = "University Access",
-                                            fontSize = 10.sp,
-                                            color = Color.White
-                                        )
-                                    }
-                                }
-
-                                Text(
-                                    text = "See stipend and apply to unlimited roles",
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.White
-                                )
-
-                                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                                    val benefits = listOf(
-                                        "Unlock exact stipends & CTC figures",
-                                        "Direct recruiter email & WhatsApp routing",
-                                        "Instant IIT/NIT verified referral credentials"
-                                    )
-                                    benefits.forEach { benefit ->
-                                        Row(
-                                            verticalAlignment = Alignment.CenterVertically,
-                                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                        ) {
-                                            IconCheck(tint = TertiaryFixed, modifier = Modifier.size(14.dp))
-                                            Text(
-                                                text = benefit,
-                                                fontSize = 13.sp,
-                                                color = Color.White.copy(alpha = 0.9f)
-                                            )
-                                        }
-                                    }
-                                }
-
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(top = 4.dp),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Column {
-                                        Text("Early career plan", fontSize = 11.sp, color = Color.White.copy(alpha = 0.7f))
-                                        Row(verticalAlignment = Alignment.Bottom) {
-                                            Text("₹299", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                                            Text(" / month", fontSize = 12.sp, color = Color.White.copy(alpha = 0.8f))
-                                        }
-                                    }
-
-                                    Button(
-                                        onClick = { showProSheet = true },
-                                        shape = RoundedCornerShape(8.dp),
-                                        colors = ButtonDefaults.buttonColors(
-                                            containerColor = SurfaceContainerLowest,
-                                            contentColor = Primary
-                                        )
-                                    ) {
-                                        Text("Upgrade", fontWeight = FontWeight.Bold, fontSize = 13.sp)
-                                    }
-                                }
-                            }
-                        }
-                    } else {
-                        // Pro Benefit Indicator Bar
-                        Surface(
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(12.dp),
-                            color = SurfaceContainerLowest,
-                            shadowElevation = 1.dp
-                        ) {
-                            Row(
-                                modifier = Modifier.padding(14.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(12.dp)
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(36.dp)
-                                        .clip(RoundedCornerShape(8.dp))
-                                        .background(SurfaceContainer),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    IconVerified(tint = Primary, modifier = Modifier.size(20.dp))
-                                }
-
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                                    ) {
-                                        Text("Pro Active", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Primary)
-                                        Text("·", fontSize = 12.sp, color = OnSurfaceVariant)
-                                        Text("Direct Referrals", fontSize = 12.sp, color = OnSurfaceVariant)
-                                    }
-                                    Text(
-                                        text = "Unlimited applications & unlocked verified CTC",
-                                        fontSize = 13.sp,
-                                        color = OnSurface
-                                    )
-                                }
-
-                                IconCheck(tint = Primary, modifier = Modifier.size(18.dp))
-                            }
-                        }
-                    }
-                }
-
-                // Feed Section Header
-                item {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            Text(
-                                text = "Curated Roles",
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = OnSurface
+                            val features = listOf(
+                                "Stipend & CTC Breakdown" to "See in-hand compensation, bonuses, and PPO packages.",
+                                "Direct Recruiter Contact" to "Verified recruiter profile, email, and alumni network links.",
+                                "Fast Apply" to "Apply directly to hiring managers without third-party filters."
                             )
-                            Box(
-                                modifier = Modifier
-                                    .clip(CircleShape)
-                                    .background(SurfaceContainerHigh)
-                                    .padding(horizontal = 8.dp, vertical = 2.dp)
-                            ) {
-                                Text("12 live", fontSize = 11.sp, color = OnSurfaceVariant, fontWeight = FontWeight.Medium)
-                            }
-                        }
-                    }
-                }
-
-                // Job Cards Stream
-                val filteredJobs = jobsList.filter { job ->
-                    if (searchQuery.isEmpty()) true
-                    else job.title.contains(searchQuery, ignoreCase = true) || job.company.contains(searchQuery, ignoreCase = true)
-                }
-
-                items(filteredJobs) { job ->
-                    JobCardItem(
-                        job = job,
-                        isProUser = userProfile.isProMember,
-                        onRevealClick = { showProSheet = true },
-                        onBookmarkToggle = {
-                            jobsList = jobsList.map { item ->
-                                if (item.id == job.id) item.copy(isBookmarked = !item.isBookmarked) else item
-                            }
-                        },
-                        onApplyClick = {
-                            jobsList = jobsList.map { item ->
-                                if (item.id == job.id) item.copy(isApplied = true, appliedTimeAgo = "Just now") else item
-                            }
-                        }
-                    )
-                }
-            }
-        }
-
-        // Pro Upgrade BottomSheet Modal
-        if (showProSheet) {
-            ModalBottomSheet(
-                onDismissRequest = { showProSheet = false },
-                containerColor = SurfaceContainerLowest,
-                shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(20.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column {
-                            Text("PRO TIER FEATURE", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Primary)
-                            Text("Unlock full job intelligence", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = OnSurface)
-                        }
-                        Text(
-                            text = "✕",
-                            fontSize = 18.sp,
-                            color = Outline,
-                            modifier = Modifier.clickable { showProSheet = false }
-                        )
-                    }
-
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(SurfaceContainerLow)
-                            .padding(14.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        val features = listOf(
-                            "Stipend & CTC Breakdown" to "See monthly in-hand, performance bonus, and PPO conversion packages.",
-                            "Direct Recruiter Desk" to "Verified LinkedIn handle, work email, and referral alumni connections.",
-                            "1-Tap Fast Apply" to "Bypass third-party ATS screening portals with direct hiring pipeline access."
-                        )
-                        features.forEach { (featureTitle, featureDesc) ->
-                            Row(
-                                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                                verticalAlignment = Alignment.Top
-                            ) {
-                                IconCheck(tint = Primary, modifier = Modifier.size(16.dp))
-                                Column {
-                                    Text(featureTitle, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = OnSurface)
-                                    Text(featureDesc, fontSize = 12.sp, color = OnSurfaceVariant)
+                            features.forEach { (featureTitle, featureDesc) ->
+                                Row(
+                                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                    verticalAlignment = Alignment.Top
+                                ) {
+                                    IconCheck(tint = Primary, modifier = Modifier.size(16.dp))
+                                    Column {
+                                        Text(featureTitle, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = OnSurface)
+                                        Text(featureDesc, fontSize = 12.sp, color = OnSurfaceVariant)
+                                    }
                                 }
                             }
                         }
-                    }
 
-                    Button(
-                        onClick = {
-                            showProSheet = false
-                            onUpgradeToPro()
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(46.dp),
-                        shape = RoundedCornerShape(10.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Primary, contentColor = OnPrimary)
-                    ) {
-                        Text("Upgrade for ₹299 / month", fontSize = 14.sp, fontWeight = FontWeight.Bold)
-                    }
+                        Button(
+                            onClick = {
+                                showProSheet = false
+                                onUpgradeToPro()
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(46.dp),
+                            shape = RoundedCornerShape(10.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = Primary, contentColor = OnPrimary)
+                        ) {
+                            Text("Upgrade for ₹299 / month", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                        }
 
-                    Text(
-                        text = "Cancel anytime · Zero lock-in period · Indian UPI supported",
-                        fontSize = 11.sp,
-                        color = OnSurfaceVariant,
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
-                    )
+                        Text(
+                            text = "Cancel anytime · Zero lock-in period · Indian UPI supported",
+                            fontSize = 11.sp,
+                            color = OnSurfaceVariant,
+                            modifier = Modifier.align(Alignment.CenterHorizontally)
+                        )
+                    }
                 }
             }
         }
     }
 }
-// Add these imports at the top of the file if missing:
-// import androidx.compose.foundation.layout.ExperimentalLayoutApi
-// import androidx.compose.foundation.layout.FlowRow
-// import androidx.compose.foundation.layout.PaddingValues
-// import androidx.compose.foundation.layout.Spacer
-// import androidx.compose.foundation.layout.height
-// import androidx.compose.foundation.layout.width
-// import androidx.compose.foundation.layout.wrapContentWidth
-// import androidx.compose.ui.text.style.TextOverflow
 
+/**
+ * Decluttered 4-Zone Mobile Job Card:
+ * Entire card is clickable to view job details.
+ * Zone 1: Header (Company name + category, Time posted, Bookmark toggle)
+ * Zone 2: Title (Role title text, maxLines = 2, overflow = TextOverflow.Ellipsis)
+ * Zone 3: Badges (Max 3 chips: location, work style, duration)
+ * Zone 4: Action (Stipend text on left, applicant count or applied badge on right)
+ */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun JobCardItem(
     job: Job,
-    isProUser: Boolean,
-    onRevealClick: () -> Unit,
-    onBookmarkToggle: () -> Unit,
-    onApplyClick: () -> Unit
+    onCardClick: () -> Unit,
+    onBookmarkToggle: () -> Unit
 ) {
     Surface(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onCardClick() },
         shape = RoundedCornerShape(14.dp),
         color = SurfaceContainerLowest,
         shadowElevation = 1.dp
     ) {
         Column(
-            modifier = Modifier.padding(14.dp)
-                .fillMaxWidth()
-                .wrapContentHeight(),
+            modifier = Modifier
+                .padding(14.dp)
+                .fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            // Top Row
+            // ZONE 1: Header
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Top
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                Text(
+                    text = "${job.company} · ${job.sector} · ${job.timeAgo}",
+                    fontSize = 12.sp,
+                    color = OnSurfaceVariant,
+                    fontWeight = FontWeight.Medium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(40.dp)
-                            .clip(RoundedCornerShape(10.dp))
-                            .background(job.companyBgColor),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = job.companyInitial,
-                            color = Color.White,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 18.sp
-                        )
-                    }
-
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = "${job.company} · ${job.sector} · ${job.timeAgo}",
-                            fontSize = 12.sp,
-                            color = OnSurfaceVariant,
-                            fontWeight = FontWeight.Medium,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-
-                        Text(
-                            text = job.title,
-                            fontSize = 15.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = OnSurface,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
-                }
+                )
 
                 Box(
                     modifier = Modifier.clickable { onBookmarkToggle() }
@@ -623,14 +607,27 @@ fun JobCardItem(
                 }
             }
 
-            // Meta Badges
+            // ZONE 2: Title
+            Text(
+                text = job.title,
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Bold,
+                color = OnSurface,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+
+            // ZONE 3: Badges (Max 3 chips)
             FlowRow(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
                 verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                val badges = listOf(job.location, job.workType, job.duration, job.batchTag)
-                badges.filter { it.isNotBlank() }.forEach { badge ->
+                val maxThreeBadges = listOf(job.location, job.workType, job.duration)
+                    .filter { it.isNotBlank() }
+                    .take(3)
+
+                maxThreeBadges.forEach { badge ->
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(4.dp))
@@ -649,128 +646,51 @@ fun JobCardItem(
                 }
             }
 
-            // Recruiter info if available
-            if (job.recruiterInfo != null && isProUser) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(SurfaceContainerLow)
-                        .padding(8.dp)
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        IconVerified(tint = Primary, modifier = Modifier.size(16.dp))
-                        Text(
-                            text = job.recruiterInfo,
-                            fontSize = 12.sp,
-                            color = OnSurface,
-                            fontWeight = FontWeight.Medium
-                        )
-                    }
-                }
-            }
-
-            // Stipend Row
-            if (job.isStipendLocked) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(SurfaceContainerLow)
-                        .clickable { onRevealClick() }
-                        .padding(horizontal = 12.dp, vertical = 8.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        IconLock(tint = Secondary, modifier = Modifier.size(16.dp))
-                        Text(
-                            text = "Stipend locked for free users",
-                            fontSize = 13.sp,
-                            color = OnSurfaceVariant
-                        )
-                    }
-
-                    Text(
-                        text = "Reveal ➔",
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Primary
-                    )
-                }
-            } else {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    // Flexible side: takes the leftover width and truncates if needed
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text("Compensation", fontSize = 11.sp, color = OnSurfaceVariant)
-                        Text(
-                            text = job.stipendText,
-                            fontSize = 15.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = OnSurface,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.width(12.dp))
-
-                    if (job.isApplied) {
-                        Box(
-                            modifier = Modifier
-                                .clip(CircleShape)
-                                .background(SuccessBg)
-                                .padding(horizontal = 10.dp, vertical = 4.dp)
-                        ) {
-                            Text(
-                                text = job.appliedTimeAgo ?: "Applied",
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = SuccessText,
-                                maxLines = 1,
-                                softWrap = false
-                            )
-                        }
-                    } else {
-                        // Fixed side: keeps its natural width so the label never wraps
-                        Button(
-                            onClick = { onApplyClick() },
-                            modifier = Modifier
-                                .wrapContentWidth()
-                                .height(40.dp),
-                            shape = RoundedCornerShape(8.dp),
-                            contentPadding = PaddingValues(horizontal = 14.dp, vertical = 0.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = PrimaryContainer, contentColor = OnPrimary)
-                        ) {
-                            Text(
-                                text = "Direct Apply ⚡",
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold,
-                                maxLines = 1,
-                                softWrap = false
-                            )
-                        }
-                    }
-                }
-            }
-
-            // Footer
+            // ZONE 4: Stipend & Status Row
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(job.applicantsCount, fontSize = 11.sp, color = OnSurfaceVariant)
+                Column(modifier = Modifier.weight(1f)) {
+                    Text("Stipend", fontSize = 11.sp, color = OnSurfaceVariant)
+                    Text(
+                        text = job.stipendText,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = OnSurface,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+
+                if (job.isApplied) {
+                    Box(
+                        modifier = Modifier
+                            .clip(CircleShape)
+                            .background(SuccessBg)
+                            .padding(horizontal = 10.dp, vertical = 6.dp)
+                    ) {
+                        Text(
+                            text = job.appliedTimeAgo ?: "Applied",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = SuccessText,
+                            maxLines = 1,
+                            softWrap = false
+                        )
+                    }
+                } else {
+                    val cleanApplicantText = job.applicantsCount.split("·").firstOrNull()?.trim() ?: job.applicantsCount
+                    Text(
+                        text = cleanApplicantText,
+                        fontSize = 12.sp,
+                        color = OnSurfaceVariant,
+                        fontWeight = FontWeight.Medium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
             }
         }
     }
